@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#f6f7fb">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icon.svg">
-  <title>Uber Hours Tracker</title>
+  <title>Control de horas Uber</title>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",sans-serif;color:#1d1d1f;background:#faf9f6;font-synthesis:none}
     *{box-sizing:border-box}
     body{margin:0;min-width:320px;background:#faf9f6}
-    main{width:min(100%,520px);min-height:calc(100vh - 40px);margin:20px auto;padding:0 20px 146px;border-radius:30px;background:#faf9f6;overflow:hidden}
+    main{width:min(100%,520px);min-height:calc(100vh - 40px);margin:20px auto;padding:0 20px 220px;border-radius:30px;background:#faf9f6;overflow:hidden}
     .view{display:none}.view.active{display:block}
     .home-hero{margin:0 -20px 24px;padding:28px 20px 30px;background:#1d1d1f;border-radius:0 0 28px 28px;color:#fff}
     .eyebrow{margin:0 0 8px;color:#cccccc;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
@@ -36,59 +36,59 @@
     .calendar-day:not(.worked) .day-hours{display:none}
     @media(max-width:520px){.calendar-weekdays,.calendar-grid{gap:6px}.calendar-grid{grid-auto-rows:minmax(88px,1fr)}.calendar-day{padding:10px 3px}.day-number{font-size:15px}.day-hours{font-size:12px}}
     @keyframes fade-in{from{opacity:0}to{opacity:1}}@keyframes sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    @media(max-width:520px){main{min-height:100vh;margin:0;border-radius:0;padding:0 16px 100px}.home-hero{margin-left:-16px;margin-right:-16px}.sessions-launch,.stats-launch{right:20px}.sessions-launch{bottom:144px}.stats-launch{bottom:204px}.calendar-weekdays,.calendar-grid{gap:5px}.calendar-grid{grid-auto-rows:minmax(58px,1fr)}.calendar-day{padding:8px 5px}.dock-inner{gap:12px}.dock-timer{font-size:18px}}
+    @media(max-width:520px){main{min-height:100vh;margin:0;border-radius:0;padding:0 16px 220px}.home-hero{margin-left:-16px;margin-right:-16px}.sessions-launch,.stats-launch{right:20px}.sessions-launch{bottom:144px}.stats-launch{bottom:204px}.calendar-weekdays,.calendar-grid{gap:5px}.calendar-grid{grid-auto-rows:minmax(58px,1fr)}.calendar-day{padding:8px 5px}.dock-inner{gap:12px}.dock-timer{font-size:18px}}
     @media(max-width:520px){.calendar-weekdays,.calendar-grid{gap:6px}.calendar-grid{grid-auto-rows:minmax(88px,1fr)}.calendar-day{align-items:center;justify-content:center;gap:8px;padding:10px 3px;border-radius:999px}.day-number{font-size:15px}.day-hours{font-size:12px}}
   </style>
 </head>
 <body>
   <main>
     <section id="homeView" class="view active" aria-labelledby="homeTitle">
-      <div class="home-hero"><p class="eyebrow">Work progress</p><h1 id="homeTitle">Uber Hours Tracker</h1><p class="hero-caption">Keep your driving plan on track.</p></div>
+      <div class="home-hero"><p class="eyebrow">Progreso de trabajo</p><h1 id="homeTitle">Control de horas Uber</h1><p class="hero-caption">Mantén tu plan de conducción al día.</p></div>
       <div class="progress-stack" aria-label="Hours progress">
         <article class="progress-item">
-          <div class="progress-head"><span class="progress-title">Dynamic hours</span><span class="progress-value" id="dyn">0h 00m</span></div>
+          <div class="progress-head"><span class="progress-title">Horas dinámicas</span><span class="progress-value" id="dyn">0h 00m</span></div>
           <div class="progress-track"><div id="dynBar" class="progress-fill dynamic"></div></div>
-          <div class="progress-detail"><span>Progress</span><span><span id="dynLeft">135h 00m</span> left</span></div>
+          <div class="progress-detail"><span>Progreso</span><span><span id="dynLeft">135h 00m</span> restantes</span></div>
         </article>
         <article class="progress-item">
-          <div class="progress-head"><span class="progress-title">Normal hours</span><span class="progress-value" id="norm">0h 00m</span></div>
+          <div class="progress-head"><span class="progress-title">Horas normales</span><span class="progress-value" id="norm">0h 00m</span></div>
           <div class="progress-track"><div id="normBar" class="progress-fill normal"></div></div>
-          <div class="progress-detail"><span>Progress</span><span><span id="normLeft">85h 00m</span> left</span></div>
+          <div class="progress-detail"><span>Progreso</span><span><span id="normLeft">85h 00m</span> restantes</span></div>
         </article>
       </div>
-      <button id="openStats" class="stats-launch" aria-label="Open stats" title="Open stats"><span class="calendar-glyph" aria-hidden="true"></span></button><button id="openSessions" class="sessions-launch" aria-label="Open sessions" title="Open sessions">&#9776;</button>
+      <button id="openStats" class="stats-launch" aria-label="Abrir estadísticas" title="Abrir estadísticas"><span class="calendar-glyph" aria-hidden="true"></span></button><button id="openSessions" class="sessions-launch" aria-label="Abrir sesiones" title="Abrir sesiones">&#9776;</button>
     </section>
 
     <section id="statsView" class="view" aria-labelledby="statsTitle">
-      <div class="page-header"><button id="backStats" class="back-button" aria-label="Back to overview" title="Back to overview">&#8592;</button><h1 id="statsTitle">Stats</h1></div>
-      <div class="calendar-header"><h2 id="calendarTitle" class="calendar-title"></h2><div class="month-nav"><button id="prevMonth" class="month-button" aria-label="Previous month" title="Previous month">&#8592;</button><button id="nextMonth" class="month-button" aria-label="Next month" title="Next month">&#8594;</button></div></div>
-      <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="calendarGrid" class="calendar-grid" aria-label="Monthly work calendar"></div>
+      <div class="page-header"><button id="backStats" class="back-button" aria-label="Volver al resumen" title="Volver al resumen">&#8592;</button><h1 id="statsTitle">Estadísticas</h1></div>
+      <div class="calendar-header"><h2 id="calendarTitle" class="calendar-title"></h2><div class="month-nav"><button id="prevMonth" class="month-button" aria-label="Mes anterior" title="Mes anterior">&#8592;</button><button id="nextMonth" class="month-button" aria-label="Mes siguiente" title="Mes siguiente">&#8594;</button></div></div>
+      <div class="calendar-weekdays" aria-hidden="true"><span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span></div><div id="calendarGrid" class="calendar-grid" aria-label="Calendario mensual de trabajo"></div>
     </section>
 
     <section id="sessionsView" class="view" aria-labelledby="sessionsTitle">
-      <div class="page-header"><button id="backHome" class="back-button" aria-label="Back to overview" title="Back to overview">&#8592;</button><h1 id="sessionsTitle">Sessions</h1></div>
-      <div class="calendar-header"><h2 id="sessionsMonthTitle" class="calendar-title"></h2><div class="month-nav"><button id="prevSessionsMonth" class="month-button" aria-label="Previous month" title="Previous month">&#8592;</button><button id="nextSessionsMonth" class="month-button" aria-label="Next month" title="Next month">&#8594;</button></div></div>
+      <div class="page-header"><button id="backHome" class="back-button" aria-label="Volver al resumen" title="Volver al resumen">&#8592;</button><h1 id="sessionsTitle">Sesiones</h1></div>
+      <div class="calendar-header"><h2 id="sessionsMonthTitle" class="calendar-title"></h2><div class="month-nav"><button id="prevSessionsMonth" class="month-button" aria-label="Mes anterior" title="Mes anterior">&#8592;</button><button id="nextSessionsMonth" class="month-button" aria-label="Mes siguiente" title="Mes siguiente">&#8594;</button></div></div>
       <div id="list" class="session-list"></div>
-      <div class="session-actions"><button id="toggleManual" class="add-button" aria-label="Add session" title="Add session">&#43;</button><button id="clear" class="clear-button" aria-label="Reset sessions" title="Reset sessions">&#8635;</button></div>
+      <div class="session-actions"><button id="toggleManual" class="add-button" aria-label="Añadir sesión" title="Añadir sesión">&#43;</button><button id="clear" class="clear-button" aria-label="Restablecer sesiones" title="Restablecer sesiones">&#8635;</button></div>
     </section>
   </main>
 
   <div id="addModal" class="sheet-backdrop" hidden>
     <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
-      <div class="sheet-handle"></div><div class="sheet-header"><h2 id="addModalTitle">Add a session</h2><button id="closeAdd" class="sheet-close" aria-label="Close add session">&#215;</button></div>
-      <div class="field-grid"><label>Start<input id="ms" type="datetime-local"></label><label>Finish<input id="me" type="datetime-local"></label></div>
-      <button id="add" class="primary-button add-submit" type="button">Add session</button><p class="message" id="msg" aria-live="polite"></p>
+      <div class="sheet-handle"></div><div class="sheet-header"><h2 id="addModalTitle">Añadir una sesión</h2><button id="closeAdd" class="sheet-close" aria-label="Cerrar añadir sesión">&#215;</button></div>
+      <div class="field-grid"><label>Inicio<input id="ms" type="datetime-local"></label><label>Fin<input id="me" type="datetime-local"></label></div>
+      <button id="add" class="primary-button add-submit" type="button">Añadir sesión</button><p class="message" id="msg" aria-live="polite"></p>
     </section>
   </div>
   <div id="resetModal" class="sheet-backdrop" hidden>
     <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
-      <div class="sheet-handle"></div><div class="sheet-header"><h2 id="resetModalTitle">Reset sessions?</h2><button id="closeReset" class="sheet-close" aria-label="Close reset confirmation">&#215;</button></div>
-      <p class="sheet-copy">This will remove all saved sessions from this device.</p><div class="sheet-actions"><button id="cancelReset" class="sheet-cancel" type="button">Cancel</button><button id="confirmReset" class="primary-button sheet-danger" type="button">Reset sessions</button></div>
+      <div class="sheet-handle"></div><div class="sheet-header"><h2 id="resetModalTitle">¿Restablecer sesiones?</h2><button id="closeReset" class="sheet-close" aria-label="Cerrar confirmación de restablecimiento">&#215;</button></div>
+      <p class="sheet-copy">Esto eliminará todas las sesiones guardadas en este dispositivo.</p><div class="sheet-actions"><button id="cancelReset" class="sheet-cancel" type="button">Cancelar</button><button id="confirmReset" class="primary-button sheet-danger" type="button">Restablecer sesiones</button></div>
     </section>
   </div>
 
-  <footer id="sessionDock" class="session-dock" aria-label="Current session controls">
-    <div class="dock-inner"><div class="dock-copy"><div class="dock-label" id="dockLabel">Start</div><div class="dock-timer" id="timer" hidden>00:00:00</div></div><button id="sessionAction" class="round-action" aria-label="Start session" title="Start session">&#9654;</button></div>
+  <footer id="sessionDock" class="session-dock" aria-label="Controles de sesión actual">
+    <div class="dock-inner"><div class="dock-copy"><div class="dock-label" id="dockLabel">Iniciar</div><div class="dock-timer" id="timer" hidden>00:00:00</div></div><button id="sessionAction" class="round-action" aria-label="Iniciar sesión" title="Iniciar sesión">&#9654;</button></div>
   </footer>
 
   <script>
@@ -103,16 +103,16 @@
     let calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1),sessionsMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
     function dayHours(day){let start=new Date(day.getFullYear(),day.getMonth(),day.getDate()),end=new Date(start);end.setDate(end.getDate()+1);return ss.reduce((total,s)=>{let a=Math.max(+start,+new Date(s.a)),b=Math.min(+end,+new Date(s.b));return total+Math.max(0,b-a)},0)}
     function dayLabel(ms){let minutes=Math.round(Math.max(0,ms)/6e4);return '<span>'+Math.floor(minutes/60)+'h</span><span>'+pad(minutes%60)+'m</span>'}
-    function renderCalendar(){let y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0);$('calendarTitle').textContent=calendarMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'});let html='';for(let i=0;i<first.getDay();i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let day=1;day<=last.getDate();day++){let date=new Date(y,m,day),hours=dayHours(date),worked=hours>0;html+='<div class="calendar-day'+(worked?' worked':'')+'" aria-label="'+date.toLocaleDateString()+': '+fd(hours)+'"><span class="day-number">'+day+'</span><span class="day-hours">'+dayLabel(hours)+'</span></div>'}$('calendarGrid').innerHTML=html}
-    function renderSessions(){let start=new Date(sessionsMonth),end=new Date(sessionsMonth.getFullYear(),sessionsMonth.getMonth()+1,1),visible=ss.filter(s=>new Date(s.b)>start&&new Date(s.a)<end);$('sessionsMonthTitle').textContent=sessionsMonth.toLocaleDateString(undefined,{month:'long',year:'numeric'});$('list').innerHTML=visible.length?visible.slice().reverse().map(s=>{let z=split(s.a,s.b);return '<div class="row">'+new Date(s.a).toLocaleString()+' &#8594; '+new Date(s.b).toLocaleString()+'<br><b>Dynamic '+fd(z.d)+'</b> &middot; <b>Normal '+fd(z.n)+'</b></div>'}).join(''):'<div class="empty-state">No sessions this month.</div>'}
+    function renderCalendar(){let y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0);$('calendarTitle').textContent=calendarMonth.toLocaleDateString('es-ES',{month:'long',year:'numeric'});let html='';for(let i=0;i<first.getDay();i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let day=1;day<=last.getDate();day++){let date=new Date(y,m,day),hours=dayHours(date),worked=hours>0;html+='<div class="calendar-day'+(worked?' worked':'')+'" aria-label="'+date.toLocaleDateString('es-ES')+': '+fd(hours)+'"><span class="day-number">'+day+'</span><span class="day-hours">'+dayLabel(hours)+'</span></div>'}$('calendarGrid').innerHTML=html}
+    function renderSessions(){let start=new Date(sessionsMonth),end=new Date(sessionsMonth.getFullYear(),sessionsMonth.getMonth()+1,1),visible=ss.filter(s=>new Date(s.b)>start&&new Date(s.a)<end);$('sessionsMonthTitle').textContent=sessionsMonth.toLocaleDateString('es-ES',{month:'long',year:'numeric'});$('list').innerHTML=visible.length?visible.slice().reverse().map(s=>{let z=split(s.a,s.b);return '<div class="row">'+new Date(s.a).toLocaleString('es-ES')+' &#8594; '+new Date(s.b).toLocaleString('es-ES')+'<br><b>Dinámicas '+fd(z.d)+'</b> &middot; <b>Normales '+fd(z.n)+'</b></div>'}).join(''):'<div class="empty-state">No hay sesiones este mes.</div>'}
     function render(){let d=0,n=0;ss.forEach(s=>{let z=split(s.a,s.b);d+=z.d;n+=z.n});$('dyn').textContent=fd(d);$('norm').textContent=fd(n);$('dynLeft').textContent=fd(DG-d);$('normLeft').textContent=fd(NG-n);$('dynBar').style.width=Math.min(100,d/DG*100)+'%';$('normBar').style.width=Math.min(100,n/NG*100)+'%';renderSessions();renderCalendar()}
     function setView(view){$('homeView').classList.toggle('active',view==='home');$('statsView').classList.toggle('active',view==='stats');$('sessionsView').classList.toggle('active',view==='sessions');$('sessionDock').hidden=view!=='home';closeSheets()}
-    function updateSessionState(){let live=!!active,button=$('sessionAction');button.classList.toggle('stop',live);button.innerHTML=live?'&#9632;':'&#9654;';button.setAttribute('aria-label',live?'End session':'Start session');button.title=live?'End session':'Start session';$('dockLabel').textContent=live?'':'Start';$('timer').hidden=!live}
+    function updateSessionState(){let live=!!active,button=$('sessionAction');button.classList.toggle('stop',live);button.innerHTML=live?'&#9632;':'&#9654;';button.setAttribute('aria-label',live?'Finalizar sesión':'Iniciar sesión');button.title=live?'Finalizar sesión':'Iniciar sesión';$('dockLabel').textContent=live?'':'Iniciar';$('timer').hidden=!live}
     $('sessionAction').onclick=()=>{if(active){ss.push({a:active.toISOString(),b:new Date().toISOString()});save();active=null;localStorage.removeItem('activeStart');render()}else{active=new Date();localStorage.setItem('activeStart',active.toISOString())}updateSessionState()};
     function closeSheets(){$('addModal').hidden=true;$('resetModal').hidden=true}
     function openSheet(id){closeSheets();$(id).hidden=false}
     $('openStats').onclick=()=>setView('stats');$('backStats').onclick=()=>setView('home');$('openSessions').onclick=()=>{renderSessions();setView('sessions')};$('backHome').onclick=()=>setView('home');$('prevMonth').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};$('nextMonth').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};$('prevSessionsMonth').onclick=()=>{sessionsMonth.setMonth(sessionsMonth.getMonth()-1);renderSessions()};$('nextSessionsMonth').onclick=()=>{sessionsMonth.setMonth(sessionsMonth.getMonth()+1);renderSessions()};$('toggleManual').onclick=()=>openSheet('addModal');$('closeAdd').onclick=closeSheets;
-    $('add').onclick=()=>{let a=new Date($('ms').value),b=new Date($('me').value);if(!$('ms').value||!$('me').value||b<=a){$('msg').textContent='Please enter a valid start and finish.';$('msg').classList.remove('success');return}ss.push({a:a.toISOString(),b:b.toISOString()});save();$('msg').textContent='Session added.';$('msg').classList.add('success');$('ms').value='';$('me').value='';render();setTimeout(closeSheets,180)};
+    $('add').onclick=()=>{let a=new Date($('ms').value),b=new Date($('me').value);if(!$('ms').value||!$('me').value||b<=a){$('msg').textContent='Introduce un inicio y un fin válidos.';$('msg').classList.remove('success');return}ss.push({a:a.toISOString(),b:b.toISOString()});save();$('msg').textContent='Sesión añadida.';$('msg').classList.add('success');$('ms').value='';$('me').value='';render();setTimeout(closeSheets,180)};
     $('clear').onclick=()=>openSheet('resetModal');$('closeReset').onclick=closeSheets;$('cancelReset').onclick=closeSheets;$('confirmReset').onclick=()=>{ss=[];save();render();closeSheets()};
     document.querySelectorAll('.sheet-backdrop').forEach(sheet=>sheet.onclick=e=>{if(e.target===sheet)closeSheets()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheets()});
     setInterval(()=>{if(!active){$('timer').textContent='00:00:00';return}let now=new Date(),sec=Math.floor((now-active)/1000);$('timer').textContent=pad(Math.floor(sec/3600))+':'+pad(Math.floor(sec%3600/60))+':'+pad(sec%60)},1000);

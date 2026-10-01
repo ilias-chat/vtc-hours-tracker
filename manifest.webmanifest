@@ -1,1 +1,1 @@
-{"name":"Uber Hours Tracker","short_name":"Hours Tracker","start_url":"/","display":"standalone","background_color":"#f5f5f5","theme_color":"#111827","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{"name":"Control de horas Uber","short_name":"Control de horas","start_url":"/","display":"standalone","background_color":"#faf9f6","theme_color":"#0066cc","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
