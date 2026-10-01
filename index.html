@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -43,7 +43,7 @@
 <body>
   <main>
     <section id="homeView" class="view active" aria-labelledby="homeTitle">
-      <div class="home-hero"><p class="eyebrow">Progreso de trabajo</p><h1 id="homeTitle">Control de horas Uber</h1><p class="hero-caption">Mantén tu plan de conducción al día.</p></div>
+      <div class="home-hero"><p class="eyebrow" id="homeMonth">Progreso del mes actual</p><h1 id="homeTitle">Control de horas Uber</h1><p class="hero-caption">Mantén tu plan de conducción al día.</p></div>
       <div class="progress-stack" aria-label="Hours progress">
         <article class="progress-item">
           <div class="progress-head"><span class="progress-title">Horas dinámicas</span><span class="progress-value" id="dyn">0h 00m</span></div>
@@ -92,27 +92,35 @@
   </footer>
 
   <script>
-    const DG=135*36e5,NG=85*36e5;
+    const DG=135*36e5,NG=85*36e5,MADRID_TZ='Europe/Madrid';
+    const madridFormatter=new Intl.DateTimeFormat('en-GB',{timeZone:MADRID_TZ,weekday:'short',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+    const weekdayNumber={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
     let ss=JSON.parse(localStorage.getItem('sessions')||'[]'),active=localStorage.getItem('activeStart');
     active=active?new Date(active):null;
     const $=x=>document.getElementById(x),pad=x=>String(x).padStart(2,'0');
     function fd(ms){let m=Math.round(Math.max(0,ms)/6e4);return Math.floor(m/60)+'h '+pad(m%60)+'m'}
-    function dyn(d){let w=d.getDay(),h=d.getHours()+d.getMinutes()/60;if(w>=1&&w<=3)return h>=18&&h<21;if(w===4)return h>=18;if(w===5)return h<3||h>=18;if(w===0||w===6)return h<7||h>=18;return false}
-    function split(a,b){a=new Date(a);b=new Date(b);let d=0,n=0,c=new Date(a);while(c<b){let x=new Date(c);x.setMinutes(0,0,0);x.setHours(x.getHours()+1);if(x>b)x=b;let mid=new Date((+c + +x)/2),z=x-c;(dyn(mid)?d+=z:n+=z);c=x}return{d,n}}
+    function madridParts(date){let values={};madridFormatter.formatToParts(date).forEach(part=>{if(part.type!=='literal')values[part.type]=part.value});return{y:+values.year,m:+values.month,d:+values.day,h:+values.hour,min:+values.minute,w:weekdayNumber[values.weekday]}}
+    function madridDate(year,month,day,hour=0,minute=0){let normalized=new Date(Date.UTC(year,month-1,day,hour,minute)),target=+normalized,guess=target;for(let i=0;i<3;i++){let p=madridParts(new Date(guess)),shown=Date.UTC(p.y,p.m-1,p.d,p.h,p.min);guess+=target-shown}return new Date(guess)}
+    function parseMadridLocal(value){if(!value)return null;let [date,time]=value.split('T'),[year,month,day]=date.split('-').map(Number),[hour,minute]=time.split(':').map(Number),result=madridDate(year,month,day,hour,minute),p=madridParts(result);return p.y===year&&p.m===month&&p.d===day&&p.h===hour&&p.min===minute?result:null}
+    function currentMadridMonth(){let p=madridParts(new Date());return new Date(p.y,p.m-1,1)}
+    function monthRange(month){let year=month.getFullYear(),monthNumber=month.getMonth()+1;return{start:madridDate(year,monthNumber,1),end:madridDate(year,monthNumber+1,1)}}
+    function monthTitle(month){return new Date(Date.UTC(month.getFullYear(),month.getMonth(),1,12)).toLocaleDateString('es-ES',{timeZone:'UTC',month:'long',year:'numeric'})}
+    function dyn(date){let p=madridParts(date),h=p.h+p.min/60,morning=h>=7&&h<10;if(p.w===0||p.w===6)return true;if(p.w>=1&&p.w<=3)return morning||(h>=18&&h<22);if(p.w===4)return morning||h>=17;if(p.w===5)return h<3||morning||h>=17;return false}
+    function split(a,b){a=new Date(a);b=new Date(b);let d=0,n=0,c=new Date(a);while(c<b){let x=new Date(c);x.setUTCMinutes(0,0,0);x.setUTCHours(x.getUTCHours()+1);if(x>b)x=b;let mid=new Date((+c + +x)/2),z=x-c;(dyn(mid)?d+=z:n+=z);c=x}return{d,n}}
     function save(){localStorage.setItem('sessions',JSON.stringify(ss))}
-    let calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1),sessionsMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
-    function dayHours(day){let start=new Date(day.getFullYear(),day.getMonth(),day.getDate()),end=new Date(start);end.setDate(end.getDate()+1);return ss.reduce((total,s)=>{let a=Math.max(+start,+new Date(s.a)),b=Math.min(+end,+new Date(s.b));return total+Math.max(0,b-a)},0)}
+    let calendarMonth=currentMadridMonth(),sessionsMonth=currentMadridMonth();
+    function dayHours(year,month,day){let start=madridDate(year,month+1,day),end=madridDate(year,month+1,day+1);return ss.reduce((total,s)=>{let a=Math.max(+start,+new Date(s.a)),b=Math.min(+end,+new Date(s.b));return total+Math.max(0,b-a)},0)}
     function dayLabel(ms){let minutes=Math.round(Math.max(0,ms)/6e4);return '<span>'+Math.floor(minutes/60)+'h</span><span>'+pad(minutes%60)+'m</span>'}
-    function renderCalendar(){let y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0);$('calendarTitle').textContent=calendarMonth.toLocaleDateString('es-ES',{month:'long',year:'numeric'});let html='';for(let i=0;i<first.getDay();i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let day=1;day<=last.getDate();day++){let date=new Date(y,m,day),hours=dayHours(date),worked=hours>0;html+='<div class="calendar-day'+(worked?' worked':'')+'" aria-label="'+date.toLocaleDateString('es-ES')+': '+fd(hours)+'"><span class="day-number">'+day+'</span><span class="day-hours">'+dayLabel(hours)+'</span></div>'}$('calendarGrid').innerHTML=html}
-    function renderSessions(){let start=new Date(sessionsMonth),end=new Date(sessionsMonth.getFullYear(),sessionsMonth.getMonth()+1,1),visible=ss.filter(s=>new Date(s.b)>start&&new Date(s.a)<end);$('sessionsMonthTitle').textContent=sessionsMonth.toLocaleDateString('es-ES',{month:'long',year:'numeric'});$('list').innerHTML=visible.length?visible.slice().reverse().map(s=>{let z=split(s.a,s.b);return '<div class="row">'+new Date(s.a).toLocaleString('es-ES')+' &#8594; '+new Date(s.b).toLocaleString('es-ES')+'<br><b>Dinámicas '+fd(z.d)+'</b> &middot; <b>Normales '+fd(z.n)+'</b></div>'}).join(''):'<div class="empty-state">No hay sesiones este mes.</div>'}
-    function render(){let d=0,n=0;ss.forEach(s=>{let z=split(s.a,s.b);d+=z.d;n+=z.n});$('dyn').textContent=fd(d);$('norm').textContent=fd(n);$('dynLeft').textContent=fd(DG-d);$('normLeft').textContent=fd(NG-n);$('dynBar').style.width=Math.min(100,d/DG*100)+'%';$('normBar').style.width=Math.min(100,n/NG*100)+'%';renderSessions();renderCalendar()}
+    function renderCalendar(){let y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),firstDay=new Date(Date.UTC(y,m,1)).getUTCDay(),lastDay=new Date(Date.UTC(y,m+1,0)).getUTCDate();$('calendarTitle').textContent=monthTitle(calendarMonth);let html='';for(let i=0;i<firstDay;i++)html+='<div class="calendar-day empty" aria-hidden="true"></div>';for(let day=1;day<=lastDay;day++){let date=new Date(Date.UTC(y,m,day,12)),hours=dayHours(y,m,day),worked=hours>0;html+='<div class="calendar-day'+(worked?' worked':'')+'" aria-label="'+date.toLocaleDateString('es-ES',{timeZone:MADRID_TZ})+': '+fd(hours)+'"><span class="day-number">'+day+'</span><span class="day-hours">'+dayLabel(hours)+'</span></div>'}$('calendarGrid').innerHTML=html}
+    function renderSessions(){let range=monthRange(sessionsMonth),visible=ss.filter(s=>new Date(s.b)>range.start&&new Date(s.a)<range.end);$('sessionsMonthTitle').textContent=monthTitle(sessionsMonth);$('list').innerHTML=visible.length?visible.slice().reverse().map(s=>{let a=new Date(Math.max(+range.start,+new Date(s.a))),b=new Date(Math.min(+range.end,+new Date(s.b))),z=split(a,b);return '<div class="row">'+new Date(s.a).toLocaleString('es-ES',{timeZone:MADRID_TZ})+' &#8594; '+new Date(s.b).toLocaleString('es-ES',{timeZone:MADRID_TZ})+'<br><b>Dinámicas '+fd(z.d)+'</b> &middot; <b>Normales '+fd(z.n)+'</b></div>'}).join(''):'<div class="empty-state">No hay sesiones este mes.</div>'}
+    function render(){let d=0,n=0,currentMonth=currentMadridMonth(),range=monthRange(currentMonth);ss.forEach(s=>{let a=new Date(Math.max(+range.start,+new Date(s.a))),b=new Date(Math.min(+range.end,+new Date(s.b)));if(b>a){let z=split(a,b);d+=z.d;n+=z.n}});$('homeMonth').textContent='Progreso de '+monthTitle(currentMonth);$('dyn').textContent=fd(d);$('norm').textContent=fd(n);$('dynLeft').textContent=fd(DG-d);$('normLeft').textContent=fd(NG-n);$('dynBar').style.width=Math.min(100,d/DG*100)+'%';$('normBar').style.width=Math.min(100,n/NG*100)+'%';renderSessions();renderCalendar()}
     function setView(view){$('homeView').classList.toggle('active',view==='home');$('statsView').classList.toggle('active',view==='stats');$('sessionsView').classList.toggle('active',view==='sessions');$('sessionDock').hidden=view!=='home';closeSheets()}
     function updateSessionState(){let live=!!active,button=$('sessionAction');button.classList.toggle('stop',live);button.innerHTML=live?'&#9632;':'&#9654;';button.setAttribute('aria-label',live?'Finalizar sesión':'Iniciar sesión');button.title=live?'Finalizar sesión':'Iniciar sesión';$('dockLabel').textContent=live?'':'Iniciar';$('timer').hidden=!live}
     $('sessionAction').onclick=()=>{if(active){ss.push({a:active.toISOString(),b:new Date().toISOString()});save();active=null;localStorage.removeItem('activeStart');render()}else{active=new Date();localStorage.setItem('activeStart',active.toISOString())}updateSessionState()};
     function closeSheets(){$('addModal').hidden=true;$('resetModal').hidden=true}
     function openSheet(id){closeSheets();$(id).hidden=false}
     $('openStats').onclick=()=>setView('stats');$('backStats').onclick=()=>setView('home');$('openSessions').onclick=()=>{renderSessions();setView('sessions')};$('backHome').onclick=()=>setView('home');$('prevMonth').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};$('nextMonth').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};$('prevSessionsMonth').onclick=()=>{sessionsMonth.setMonth(sessionsMonth.getMonth()-1);renderSessions()};$('nextSessionsMonth').onclick=()=>{sessionsMonth.setMonth(sessionsMonth.getMonth()+1);renderSessions()};$('toggleManual').onclick=()=>openSheet('addModal');$('closeAdd').onclick=closeSheets;
-    $('add').onclick=()=>{let a=new Date($('ms').value),b=new Date($('me').value);if(!$('ms').value||!$('me').value||b<=a){$('msg').textContent='Introduce un inicio y un fin válidos.';$('msg').classList.remove('success');return}ss.push({a:a.toISOString(),b:b.toISOString()});save();$('msg').textContent='Sesión añadida.';$('msg').classList.add('success');$('ms').value='';$('me').value='';render();setTimeout(closeSheets,180)};
+    $('add').onclick=()=>{let a=parseMadridLocal($('ms').value),b=parseMadridLocal($('me').value);if(!a||!b||b<=a){$('msg').textContent='Introduce un inicio y un fin válidos en horario de España.';$('msg').classList.remove('success');return}ss.push({a:a.toISOString(),b:b.toISOString()});save();$('msg').textContent='Sesión añadida.';$('msg').classList.add('success');$('ms').value='';$('me').value='';render();setTimeout(closeSheets,180)};
     $('clear').onclick=()=>openSheet('resetModal');$('closeReset').onclick=closeSheets;$('cancelReset').onclick=closeSheets;$('confirmReset').onclick=()=>{ss=[];save();render();closeSheets()};
     document.querySelectorAll('.sheet-backdrop').forEach(sheet=>sheet.onclick=e=>{if(e.target===sheet)closeSheets()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheets()});
     setInterval(()=>{if(!active){$('timer').textContent='00:00:00';return}let now=new Date(),sec=Math.floor((now-active)/1000);$('timer').textContent=pad(Math.floor(sec/3600))+':'+pad(Math.floor(sec%3600/60))+':'+pad(sec%60)},1000);
