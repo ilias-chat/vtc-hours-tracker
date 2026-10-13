@@ -105,7 +105,7 @@
     function currentMadridMonth(){let p=madridParts(new Date());return new Date(p.y,p.m-1,1)}
     function monthRange(month){let year=month.getFullYear(),monthNumber=month.getMonth()+1;return{start:madridDate(year,monthNumber,1),end:madridDate(year,monthNumber+1,1)}}
     function monthTitle(month){return new Date(Date.UTC(month.getFullYear(),month.getMonth(),1,12)).toLocaleDateString('es-ES',{timeZone:'UTC',month:'long',year:'numeric'})}
-    function dyn(date){let p=madridParts(date),h=p.h+p.min/60,morning=h>=7&&h<10;if(p.w===0||p.w===6)return true;if(p.w>=1&&p.w<=3)return morning||(h>=18&&h<22);if(p.w===4)return morning||h>=17;if(p.w===5)return h<3||morning||h>=17;return false}
+    function dyn(date){let p=madridParts(date),h=p.h+p.min/60,morning=h>=7&&h<10;if(p.w===0||p.w===6)return true;if(p.w>=1&&p.w<=3)return morning||(h>=17&&h<21);if(p.w===4)return morning||(h>=16&&h<23);if(p.w===5)return h<3||morning||(h>=16&&h<23);return false}
     function split(a,b){a=new Date(a);b=new Date(b);let d=0,n=0,c=new Date(a);while(c<b){let x=new Date(c);x.setUTCMinutes(0,0,0);x.setUTCHours(x.getUTCHours()+1);if(x>b)x=b;let mid=new Date((+c + +x)/2),z=x-c;(dyn(mid)?d+=z:n+=z);c=x}return{d,n}}
     function save(){localStorage.setItem('sessions',JSON.stringify(ss))}
     let calendarMonth=currentMadridMonth(),sessionsMonth=currentMadridMonth();
